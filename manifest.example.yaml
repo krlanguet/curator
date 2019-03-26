@@ -41,7 +41,7 @@ ioType: macos
 #
 # Default: shown below.
 #
-defaults :
+defaults:
     order: 100, # all operations start with this order value*/
     dmode: '0750' # files have user write, group read, other no access
     fmode: '0640' # directories have user write, group read, other no access
@@ -108,7 +108,7 @@ directories:
       if:
         hosts: [enterprise, defiant]
         pkgs: [turbolift, transporter]
-        
+
     # Install sickbay first...
     - src: decks/sickbay
       dst: sickbay
@@ -118,7 +118,7 @@ directories:
     - src: beds
       dst: sickbay/beds
       order: 11
-      
+
     - src: meds
       dst: sickbay/meds
       order: 11
@@ -159,7 +159,7 @@ symlinks:
     # Create a symlink from ~/drink to ~/tea/earlgray/hot on all hosts.
     - src: drink
       dst: tea/earlgray/hot
-    
+
     # Create a symlink from ~/hypospray to ~/hyposprays/norepinephrine
     # on host enterprise if the sickbay package is installed.
     - src: hypospray
