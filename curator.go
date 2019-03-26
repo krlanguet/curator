@@ -8,7 +8,5 @@ import(
 func main() {
     fmt.Println("Starting krlanguet/curator")
 
-    var c lib.manifest
-
-    //lib.ReadManifest()
+    lib.ReadManifest("/mnt/d/Projects/src/github.com/krlanguet/curator/manifest.example.yaml")
 }

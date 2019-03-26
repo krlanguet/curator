@@ -42,7 +42,7 @@ ioType: macos
 # Default: shown below.
 #
 defaults:
-    order: 100, # all operations start with this order value*/
+    order: 100 # all operations start with this order value*/
     dmode: '0750' # files have user write, group read, other no access
     fmode: '0640' # directories have user write, group read, other no access
     #user: process.getuid(), // current user //ToDo

@@ -2,25 +2,25 @@ package lib
 
 import(
     "fmt"
-    "path"
-    //"gopkg.in/yaml.v2"
+    //"path"
+    //"os"
+    "io/ioutil"
+    "gopkg.in/yaml.v2"
 )
+
+func handle(err error) {
+    if err != nil {
+        fmt.Println("Error:", err)
+    }
+}
 
 type mode string
 type pkgType string
 type ioType string
 
-type Condition struct {
+type condition struct {
     Hosts []string
     Pkgs []string
-}
-
-type defaults struct {
-    Order uint
-    User string
-    Group string
-    Fmode mode
-    Dmode mode
 }
 
 type unlink struct {
@@ -61,22 +61,41 @@ type manifest struct {
     TargetRoot string
     PkgType pkgType
     IoType ioType
-    Defaults defaults
+    Defaults struct {
+        Order uint
+        User string
+        Group string
+        Fmode mode
+        Dmode mode
+    }
     Unlinks []unlink
     Directories []dirToSync
     Files []fileToSync
     Symlinks []linkToCreate
 }
 
-func ReadManifest() {
-  fmt.Println("Reading manifest")
+func ReadManifest(pathToManifest string) (manifest) {
+    fmt.Println("Reading manifest")
+
+    fmt.Println("Opening manifest file")
+    dat, err := ioutil.ReadFile(pathToManifest)
+    handle(err)
+
+    fmt.Println("Parsing manifest as YAML")
+    var mfst manifest
+    err = yaml.Unmarshal(dat, &mfst)
+    handle(err)
+
+    fmt.Println("Normalizing manifest")
+    err = mfst.normalize()
+    handle(err)
+
+    return mfst
 }
 
-func normalizeManifest() {
+func (mfst *manifest) normalize() (error) {
     fmt.Println("Normalizing manifest")
 
-    x := "dir"
-    fmt.Println(x)
-    fmt.Println(path.Base(x))
-    return
+    return nil
 }
+
