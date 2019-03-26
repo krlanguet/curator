@@ -2,6 +2,7 @@ package lib
 
 import(
     "fmt"
+    "github.com/davecgh/go-spew/spew"
     //"path"
     //"os"
     "io/ioutil"
@@ -29,17 +30,6 @@ type unlink struct {
     OnlyIf condition        `yaml:"if"`
 }
 
-type dirToSync struct {
-    SourcePath string       `yaml:"src"`
-    DestinationPath string  `yaml:"dst"`
-    Order uint
-    User string
-    Group string
-    Fmode mode
-    Dmode mode
-    OnlyIf condition        `yaml:"if"`
-}
-
 type fileToSync struct {
     SourcePath string       `yaml:"src"`
     DestinationPath string  `yaml:"dst"`
@@ -48,6 +38,11 @@ type fileToSync struct {
     Group string
     Fmode mode
     OnlyIf condition        `yaml:"if"`
+}
+
+type dirToSync struct {
+    fileToSync              `yaml:",inline"` // Inherits fileToSync fields
+    Dmode mode
 }
 
 type linkToCreate struct {
@@ -95,6 +90,9 @@ func ReadManifest(pathToManifest string) (manifest) {
 
 func (mfst *manifest) normalize() (error) {
     fmt.Println("Normalizing manifest")
+
+    //fmt.Printf("%+v\n", mfst)
+    spew.Dump(mfst)
 
     return nil
 }
