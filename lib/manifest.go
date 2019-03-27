@@ -20,53 +20,53 @@ type pkgType string
 type ioType string
 
 type condition struct {
-    Hosts []string
-    Pkgs []string
+    Hosts []string          `yaml:"Hosts"`
+    Pkgs []string           `yaml:"Pkgs"`
 }
 
 type unlink struct {
-    PathToRemove string     `yaml:"src"`
-    Order uint
-    OnlyIf condition        `yaml:"if"`
+    PathToRemove string     `yaml:"PathToRemove"`
+    Order uint              `yaml:"Order"`
+    If condition            `yaml:"If"`
 }
 
 type fileToSync struct {
-    SourcePath string       `yaml:"src"`
-    DestinationPath string  `yaml:"dst"`
-    Order uint
-    User string
-    Group string
-    Fmode mode
-    OnlyIf condition        `yaml:"if"`
+    SourcePath string       `yaml:"SourcePath"`
+    DestinationPath string  `yaml:"DestinationPath"`
+    Order uint              `yaml:"Order"`
+    User string             `yaml:"User"`
+    Group string            `yaml:"Group"`
+    Fmode mode              `yaml:"Fmode"`
+    If condition            `yaml:"If"`
 }
 
 type dirToSync struct {
-    fileToSync              `yaml:",inline"` // Inherits fileToSync fields
-    Dmode mode
+    fileToSync              `yaml:",inline"`
+    Dmode mode              `yaml:"Dmode"`
 }
 
 type linkToCreate struct {
-    LinkPath string         `yaml:"dst"`
-    TargetPath string       `yaml:"src"`
-    OnlyIf condition
+    LinkPath string         `yaml:"LinkPath"`
+    TargetPath string       `yaml:"TargetPath"`
+    If condition            `yaml:"If"`
 }
 
 type Manifest struct {
-    OriginRoot string
-    TargetRoot string
-    PkgType pkgType
-    IoType ioType
+    OriginRoot string       `yaml:"OriginRoot"`
+    TargetRoot string       `yaml:"TargetRoot"`
+    PkgType pkgType         `yaml:"PkgType"`
+    IoType ioType           `yaml:"IoType"`
     Defaults struct {
-        Order uint
-        User string
-        Group string
-        Fmode mode
-        Dmode mode
-    }
-    Unlinks []unlink
-    Directories []dirToSync
-    Files []fileToSync
-    Symlinks []linkToCreate
+        Order uint          `yaml:"Order"`
+        User string         `yaml:"User"`
+        Group string        `yaml:"Group"`
+        Fmode mode          `yaml:"Fmode"`
+        Dmode mode          `yaml:"Dmode"`
+    }                       `yaml:"Defaults"`
+    Unlinks []unlink        `yaml:"Unlinks"`
+    Directories []dirToSync `yaml:"Directories"`
+    Files []fileToSync      `yaml:"Files"`
+    Symlinks []linkToCreate `yaml:"Symlinks"`
 }
 
 func ReadManifest(pathToManifest string) (Manifest) {
@@ -78,7 +78,7 @@ func ReadManifest(pathToManifest string) (Manifest) {
 
     fmt.Println("Parsing manifest as YAML")
     var mfst Manifest
-    err = yaml.Unmarshal(dat, &mfst)
+    err = yaml.UnmarshalStrict(dat, &mfst)
     Handle(err)
 
     return mfst

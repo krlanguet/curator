@@ -61,7 +61,7 @@ func main() {
         
         Returns pointer to lib.Manifest type, marshalled from YAML.
     */
-    mfst := lib.ReadManifest(mfstPath )
+    mfst := lib.ReadManifest(mfstPath)
 
     /*
         ** Normalizing manifest **
