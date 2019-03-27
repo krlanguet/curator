@@ -53,7 +53,7 @@ type linkToCreate struct {
 
 type Manifest struct {
     OriginRoot string       `yaml:"OriginRoot"`
-    TargetRoot string       `yaml:"TargetRoot"`
+    DestRoot string         `yaml:"DestRoot"`
     PkgType pkgType         `yaml:"PkgType"`
     IoType ioType           `yaml:"IoType"`
     Defaults struct {
@@ -84,8 +84,21 @@ func ReadManifest(pathToManifest string) (Manifest) {
     return mfst
 }
 
+/*
+    ** Normalizing manifest **
+
+    Ensures conformity to configuration rules, including:
+        * Existant shell environment variables
+        * Only absolute paths (set from relative paths in file)
+        * Valid operation order numbers
+        * Valid permission modes
+        * Valid ioType and pkgTypes
+        * No empty fields (set with defaults)
+*/
 func (mfst *Manifest) Normalize() (error) {
     fmt.Println("Normalizing manifest")
+
+    //os.GetEnv(variable)
 
     //fmt.Printf("%+v\n", mfst)
     spew.Dump(mfst)

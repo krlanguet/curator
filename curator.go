@@ -4,7 +4,9 @@ import(
     "fmt"
     //"errors"
     "os"
+    "syscall"
     "path/filepath"
+    //"github.com/davecgh/go-spew/spew"
     "github.com/krlanguet/curator/lib"
 )
 
@@ -39,21 +41,29 @@ func main() {
             mfstPath = filepath.Join(workingDirectory, mfstPath)
             fmt.Println("Absolute path to specified manifest file:", mfstPath)
         }
-        
-        // Attempt to read filesystem info on file at specified path
-        _, err := os.Stat(mfstPath)
-        if err != nil {
-            if os.IsNotExist(err) {
-                fmt.Println("Specified manifest does not exist")
-                os.Exit(1)
-            } else {
-                // Panic if an error unrelated to file existence occured
-                panic(err)
-            }
-        }
     } else {
         mfstPath = filepath.Join(workingDirectory, "manifest.yaml")
         fmt.Println("Default manifest file used:", mfstPath)
+    }
+
+    // Attempt to read filesystem info on file at specified path
+    fileInfo, err := os.Stat(mfstPath)
+    if err != nil {
+        if os.IsNotExist(err) {
+            fmt.Println("Manifest", mfstPath, "does not exist")
+            os.Exit(1)
+        } else {
+            // Panic if an error unrelated to file existence occured
+            panic(err)
+        }
+    } else {
+        stat, ok := fileInfo.Sys().(*syscall.Stat_t)
+        if !ok {
+            fmt.Println("Not a syscall.Stat_t")
+        } else {
+            fmt.Println("Manifest Uid:", stat.Uid)
+            fmt.Println("Manifest Gid:", stat.Gid)
+        }
     }
 
     /*
