@@ -9,7 +9,7 @@ import(
     "gopkg.in/yaml.v2"
 )
 
-func handle(err error) {
+func Handle(err error) {
     if err != nil {
         fmt.Println("Error:", err)
     }
@@ -51,7 +51,7 @@ type linkToCreate struct {
     OnlyIf condition
 }
 
-type manifest struct {
+type Manifest struct {
     OriginRoot string
     TargetRoot string
     PkgType pkgType
@@ -69,26 +69,22 @@ type manifest struct {
     Symlinks []linkToCreate
 }
 
-func ReadManifest(pathToManifest string) (manifest) {
+func ReadManifest(pathToManifest string) (Manifest) {
     fmt.Println("Reading manifest")
 
     fmt.Println("Opening manifest file")
     dat, err := ioutil.ReadFile(pathToManifest)
-    handle(err)
+    Handle(err)
 
     fmt.Println("Parsing manifest as YAML")
-    var mfst manifest
+    var mfst Manifest
     err = yaml.Unmarshal(dat, &mfst)
-    handle(err)
-
-    fmt.Println("Normalizing manifest")
-    err = mfst.normalize()
-    handle(err)
+    Handle(err)
 
     return mfst
 }
 
-func (mfst *manifest) normalize() (error) {
+func (mfst *Manifest) Normalize() (error) {
     fmt.Println("Normalizing manifest")
 
     //fmt.Printf("%+v\n", mfst)
