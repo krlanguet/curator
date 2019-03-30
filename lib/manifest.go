@@ -3,8 +3,9 @@ package lib
 import(
     "fmt"
     "github.com/davecgh/go-spew/spew"
-    //"path"
-    //"os"
+    "os"
+    "syscall"
+    "path/filepath"
     "io/ioutil"
     "gopkg.in/yaml.v2"
 )
@@ -52,6 +53,7 @@ type linkToCreate struct {
 }
 
 type Manifest struct {
+    // Exported
     OriginRoot string       `yaml:"OriginRoot"`
     DestRoot string         `yaml:"DestRoot"`
     PkgType pkgType         `yaml:"PkgType"`
@@ -67,21 +69,86 @@ type Manifest struct {
     Directories []dirToSync `yaml:"Directories"`
     Files []fileToSync      `yaml:"Files"`
     Symlinks []linkToCreate `yaml:"Symlinks"`
+
+    // Unexported
+    pathToManifest string
+    mfstUid uint32
+    mfstGid uint32
 }
 
-func ReadManifest(pathToManifest string) (Manifest) {
-    fmt.Println("Reading manifest")
+func LocateManifest(mfstPath string) (*Manifest) {
+    fmt.Println("Resolving manifest location")
+
+    /*
+        ** Get the current working directory **
+    */
+    // See os.Executable() for go 1.8+
+
+    workingDirectory, err := os.Getwd()
+    if err != nil {
+        panic(err)
+    }
+
+    // If not specified by user
+    if mfstPath == "" {
+        mfstPath = "manifest.yaml"
+    }
+
+    // Convert path to absolute
+    if !filepath.IsAbs(mfstPath) {
+        mfstPath = filepath.Join(workingDirectory, mfstPath)
+    }
+
+    fmt.Println("Manifest location resolved:", mfstPath)
+
+    fmt.Println("Checking file existence")
+
+    // Attempt to read filesystem info for specified path
+    fileInfo, err := os.Stat(mfstPath)
+    if err != nil {
+        if os.IsNotExist(err) {
+            fmt.Println("Manifest", mfstPath, "does not exist")
+            os.Exit(1)
+        } else {
+            // Panic if an error unrelated to file existence occured
+            panic(err)
+        }
+    }
+
+    // Attempt to load with current ownership and permissions
+    stat, ok := fileInfo.Sys().(*syscall.Stat_t)
+    if !ok { // Don't know why this returns a bool instead of an error!?
+        fmt.Println("Not a syscall.Stat_t")
+        os.Exit(1)
+    }
+
+    fmt.Println("Allocating for manifest")
+    // Given existant file, create empty Manifest to load it into
+    mfst := Manifest{
+        pathToManifest: mfstPath,
+        mfstUid: stat.Uid,
+        mfstGid: stat.Gid,
+    }
+
+    return &mfst
+}
+
+func (mfst *Manifest) Load() (error) {
+    fmt.Println("Loading manifest")
 
     fmt.Println("Opening manifest file")
-    dat, err := ioutil.ReadFile(pathToManifest)
-    Handle(err)
-
+    dat, err := ioutil.ReadFile(mfst.pathToManifest)
+    if err != nil {
+        return err
+    }
+    
     fmt.Println("Parsing manifest as YAML")
-    var mfst Manifest
-    err = yaml.UnmarshalStrict(dat, &mfst)
-    Handle(err)
+    err = yaml.UnmarshalStrict(dat, mfst)
+    if err != nil {
+        return err
+    }
 
-    return mfst
+    return nil
 }
 
 /*

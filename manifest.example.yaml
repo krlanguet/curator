@@ -59,10 +59,10 @@ Defaults:
     Order: 100          # all operations start with this order value*/
     Dmode: '0750'       # files have user write, group read, other no access
     Fmode: '0640'       # directories have user write, group read, other no access
-    User: '$MFST_UID'   # current owner for this manifest file.
+    User: '$MFST_USER'  # current owner for this manifest file.
                         # Note: will use shell environment variable if present, else
                         # lookup.
-    Group: '$MFST_GID'  # current group for this manifest file
+    Group: '$MFST_GROUP'# current group for this manifest file
                         # Note: will use shell environment variable if present, else
                         # lookup.
 
