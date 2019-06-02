@@ -26,19 +26,9 @@ func main() {
     /*
         ** Load manifest **
         
-        Populates lib.Manifest type by marshalling from YAML.
+        Populates lib.Manifest type by marshalling from YAML and normalizing.
     */
     err := mfst.Load()
-
-    /*
-        ** Normalize manifest **
-
-        Ensures conformity to configuration rules, including:
-            * Valid operation order numbers
-            * Valid permission modes
-            * Valid ioType and pkgTypes
-    */
-    err = mfst.Normalize()
     lib.Handle(err)
 
     /*
@@ -52,7 +42,7 @@ func main() {
     /*
         ** Conditionally instal manifest **
     */
-    if mfst.IoType != "noop" {
+    if !mfst.DryRun {
         err = mfst.Install()
         lib.Handle(err)
     }

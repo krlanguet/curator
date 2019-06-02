@@ -1,3 +1,12 @@
+# Dry run
+#
+# Will make no modifications if set to true - only log what
+#  actions would be taken.
+#
+# Default: true
+# 
+Dry_Run: true
+
 # Prefix for paths to:
 #   * File sources
 #   * Directory sources
@@ -9,45 +18,41 @@
 #
 # Default: the current working directory
 #
-OriginRoot: ./
+Src_Relative_To: $HOME
 
 # Prefix for paths to:
 #   * File destinations
 #   * Folder destinations
 #   * Symbollic links (actual link, not target)
-#   * Unlinks
+#   * Removals
 # Accepts valid file paths, including:
 #   * Shell variables currently in environment
 #   * ./ for the location of this file
 #
 # Default: .dest directory in the current working directory
 #
-DestRoot: ./.dest
+Dest_Relative_To: ./.dest
 
 # Package lookup backend to use:
 #   * pacman
 #   * dpkg
 #   * homebrew
 #   * pkgng
-#   * noop
+#   * ignore
 #
-# The special value noop will assume all packages are installed.
+# The special value ignore will assume all packages are installed.
 #
-# Default: attempt to autodetect, fallback to noop.
+# Default: attempt to autodetect, fallback to all_installed.
 #
-PkgType: pacman
+Pkg_Sys: ignore
 
-# I/O backend to use:
+# Backend to use:
 #   * linux
 #   * macos !! As of yet unsupported !!
-#   * noop
 #
-# The special value noop will not perform any modifications
-# and only log what actions would be taken.
+# Default: attempt to autodetect, otherwise fails.
 #
-# Default: attempt to autodetect, fallback to noop.
-#
-IoType: linux
+#Sys_Type: linux
 
 # Defaults to use for each operation.
 #
@@ -57,8 +62,8 @@ IoType: linux
 #
 Defaults:
     Order: 100          # all operations start with this order value*/
-    Dmode: '0750'       # files have user write, group read, other no access
-    Fmode: '0640'       # directories have user write, group read, other no access
+    Dir_Mode: 0750       # files have user write, group read, other no access
+    File_Mode: 0640       # directories have user write, group read, other no access
     User: '$MFST_USER'  # current owner for this manifest file.
                         # Note: will use shell environment variable if present, else
                         # lookup.
@@ -68,7 +73,7 @@ Defaults:
 
 # Operations to perform by type.
 #
-# Operations always happen in this order: unlinks, directories, files, and symlinks.
+# Operations always happen in this order: removals, directories, files, and symlinks.
 #
 # Each type of operations waits until the previous type has completed successfully.
 #
@@ -84,16 +89,16 @@ Defaults:
 # All operation types will default to empty if unset.
 #
 
-# Unlink (unconditionally remove) a directory, file, or symlink.
+# Unconditionally remove a directory, file, or symlink.
 #
 # The PathToRemove is relative to the global DestRoot option, (default $HOME/.config).
 #
-Unlinks:
+Removals:
     # Remove ./.dest/intruders on all hosts.
-    - PathToRemove: intruders
+    - Path_To_Remove: intruders
 
     # Remove ./.dest/warpcore on host enterprise, if the eject package is installed.
-    - PathToRemove: warpcore
+    - Path_To_Remove: warpcore
       If:
         Hosts: [enterprise]
         Pkgs: [eject]
@@ -113,34 +118,34 @@ Unlinks:
 #
 Directories:
     # Synchronize ./.dest/holodeck to match ./holodeck on all hosts.
-    - SourcePath: holodeck
+    - Src_Path: holodeck
 
     # Synchronize ./.dest/bridge/panels to match ./panels/exploding
     # on hosts enterprise and defiant and set specific user, group, and
     # access permissions if the turbolift and transporter packages are
     # installed.
-    - SourcePath: panels/exploding
-      DestinationPath: bridge/panels
+    - Src_Path: panels/exploding
+      Dest_Path: bridge/panels
       User: numberone
       Group: officers
-      Dmode: '0755'
-      Fmode: '0644'
+      Dir_Mode: 0755
+      File_Mode: 0644
       If:
         Hosts: [enterprise, defiant]
         Pkgs: [turbolift, transporter]
 
     # Install ./.dest/sickbay from ./decks/sickbay first...
-    - SourcePath: decks/sickbay
-      DestinationPath: sickbay
+    - Src_Path: decks/sickbay
+      Dest_Path: sickbay
       Order: 10
 
     # ... then install ./.dest/sickbay/beds and ./.dest/sickbay/meds.
-    - SourcePath: beds
-      DestinationPath: sickbay/beds
+    - Src_Path: beds
+      Dest_Path: sickbay/beds
       Order: 11
 
-    - SourcePath: meds
-      DestinationPath: sickbay/meds
+    - Src_Path: meds
+      Dest_Path: sickbay/meds
       Order: 11
 
 # Copy the file at SourcePath to DestinationPath and set the file permissions.
@@ -154,16 +159,16 @@ Directories:
 #
 Files:
     # Copy ./bay/torpedo to ./.dest/bay/torpedo on all hosts.
-    - SourcePath: bay/torpedo
+    - Src_Path: bay/torpedo
 
     # Copy ./phaser to ./.dest/brig/phaser
     # and set the user, group, and access permissions,
     # on host defiant if the stun package is installed
-    - SourcePath: phaser
-      DestinationPath: brig/phaser
+    - Src_Path: phaser
+      Dest_Path: brig/phaser
       User: warf
       Group: security
-      Fmode: '0600'
+      File_Mode: 0600
       If:
         Hosts: [defiant]
         Pkgs: [stun]
@@ -177,13 +182,13 @@ Files:
 #
 Symlinks:
     # Create a symlink at ./.dest/drink pointing to ./tea/earlgray/hot on all hosts.
-    - LinkPath: drink
-      TargetPath: tea/earlgray/hot
+    - Link_Path: drink
+      Target_Path: tea/earlgray/hot
 
     # Create a symlink at ./.dest/hypospray pointing to ./hyposprays/norepinephrine
     # on host enterprise if the sickbay package is installed.
-    - LinkPath: hypospray
-      TargetPath: hyposprays/norepinephrine
+    - Link_Path: hypospray
+      Target_Path: hyposprays/norepinephrine
       If:
         Hosts: [enterprise]
         Pkgs: [sickbay]
