@@ -1,11 +1,11 @@
-# Dry run
+# Execute actions
 #
-# Will make no modifications if set to true - only log what
+# Will make no modifications if set to false - only log what
 #  actions would be taken.
 #
-# Default: true
+# Default: false
 # 
-Dry_Run: true
+Execute: false
 
 # Prefix for paths to:
 #   * File sources
@@ -17,6 +17,8 @@ Dry_Run: true
 #   * ./ for the location of this file
 #
 # Default: the current working directory
+#
+# Will be set to default if left blank or set to empty string.
 #
 Src_Relative_To: $HOME
 
@@ -31,6 +33,8 @@ Src_Relative_To: $HOME
 #
 # Default: .dest directory in the current working directory
 #
+# Will be set to default if left blank or set to empty string.
+#
 Dest_Relative_To: ./.dest
 
 # Package lookup backend to use:
@@ -42,7 +46,9 @@ Dest_Relative_To: ./.dest
 #
 # The special value ignore will assume all packages are installed.
 #
-# Default: attempt to autodetect, fallback to all_installed.
+# Default: attempt to autodetect, fallback to ignore.
+#
+# Will be set to default if left blank or set to empty string.
 #
 Pkg_Sys: ignore
 
@@ -52,7 +58,9 @@ Pkg_Sys: ignore
 #
 # Default: attempt to autodetect, otherwise fails.
 #
-#Sys_Type: linux
+# Will attempt to autodetect if left blank or set to empty string.
+#
+Sys_Type: linux
 
 # Defaults to use for each operation.
 #
@@ -60,16 +68,19 @@ Pkg_Sys: ignore
 #
 # Default: shown below.
 #
+# Will be set to default if left blank, or set to null-value
+#  (empty string for strings, 0 for numbers or permission modes).
+#
 Defaults:
-    Order: 100          # all operations start with this order value*/
-    Dir_Mode: 0750       # files have user write, group read, other no access
-    File_Mode: 0640       # directories have user write, group read, other no access
-    User: '$MFST_USER'  # current owner for this manifest file.
-                        # Note: will use shell environment variable if present, else
-                        # lookup.
-    Group: '$MFST_GROUP'# current group for this manifest file
-                        # Note: will use shell environment variable if present, else
-                        # lookup.
+    Order: 100              # all operations start with this order value
+    Dir_Mode: 0750          # files have user write, group read, other no access
+    File_Mode: 0640         # directories have user write, group read, other no access
+    User: '$MFST_USER'      # current owner for this manifest file.
+                            # Note: will use shell environment variable if present, else
+                            # lookup.
+    Group: '$MFST_GROUP'    # current group for this manifest file
+                            # Note: will use shell environment variable if present, else
+                            # lookup.
 
 # Operations to perform by type.
 #
@@ -79,6 +90,8 @@ Defaults:
 #
 # Operations of each type with equal order value are done asynchronously
 # but operations with a later order do not start until earlier ones complete.
+#
+# The first valid order value is 1.
 #
 # Specifying an array of hostnames will restrict that
 # operation to matching hosts (case insensitive).
